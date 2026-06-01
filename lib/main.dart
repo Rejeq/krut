@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:track_dev/providers/auth_providers.dart';
 import 'package:track_dev/ui/auth/login_screen.dart';
 import 'package:track_dev/ui/home/home_screen.dart';
+import 'package:track_dev/ui/root/root_screen.dart';
 import 'package:track_dev/ui/theme/theme.dart';
 
 void main() {
@@ -24,7 +25,7 @@ class MyApp extends ConsumerWidget {
       home: authState.when(
         data: (token) {
           if (token != null && !token.isExpired) {
-            return const HomeScreen();
+            return const RootScreen();
           }
           return const LoginScreen();
         },

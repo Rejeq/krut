@@ -1,4 +1,5 @@
 import 'package:track_dev/core/models/auth_token.dart';
+import 'package:track_dev/core/models/user.dart';
 import 'package:track_dev/core/repository/auth.dart';
 import 'package:track_dev/data/source/api_datasource.dart';
 
@@ -27,6 +28,16 @@ class FakeApiDataSource implements ApiDataSource {
     return AuthToken(
       value: 'TOKEN_${DateTime.now().millisecondsSinceEpoch}',
       expiresAt: DateTime.now().add(const Duration(hours: 1)),
+    );
+  }
+
+  @override
+  Future<User> fetchUser(String token) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return User(
+      id: '1',
+      email: 'admin@example.com',
+      name: 'Admin User',
     );
   }
 }
