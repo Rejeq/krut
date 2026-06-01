@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/repository/auth_repository.dart';
-import 'package:flutter_application_1/repository/datasource/AuthLocalDataSource.dart';
-import 'package:flutter_application_1/repository/datasource/AuthRemoteDataSource.dart';
-import 'package:flutter_application_1/screen/auth/auth.dart';
-import 'package:provider/provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:track_dev/providers/auth_providers.dart';
+import 'package:track_dev/ui/auth/login_screen.dart';
+import 'package:track_dev/ui/home/home_screen.dart';
+import 'package:track_dev/ui/theme/theme.dart';
 
 void main() {
-  runApp(
-    Provider<AuthRepository>(
-      create: (_) => AuthRepositoryImpl(
-        remoteDataSource: AuthRemoteDataSourceImpl(),
-        localDataSource: AuthLocalDataSourceImpl(),
-      ),
-      child: const MyApp(),
-      ),
-    );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.red),
+      title: 'TrackDev',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: authState.when(
+        data: (token) {
+          if (token != null && !token.isExpired) {
+            return const HomeScreen();
+          }
+          return const LoginScreen();
+        },
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (error, stack) => const LoginScreen(),
       ),
-      home: LoginPage(),
     );
   }
 }
