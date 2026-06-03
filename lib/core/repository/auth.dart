@@ -1,41 +1,44 @@
-import 'package:track_dev/core/models/auth_token.dart';
+import 'package:track_dev/core/models/error.dart';
+import 'package:track_dev/core/models/user.dart';
 
-sealed class AuthErrorKind {}
-
-class NetworkErrorKind extends AuthErrorKind {
-  final int? code;
-  NetworkErrorKind({this.code});
+sealed class AuthErrorKind {
+  const AuthErrorKind();
 }
 
-class UserNotFoundErrorKind extends AuthErrorKind {}
+final class IncorrectPasswordErrorKind extends AuthErrorKind {
+  const IncorrectPasswordErrorKind();
+}
 
-class IncorrectPasswordErrorKind extends AuthErrorKind {}
+final class UserNotFoundErrorKind extends AuthErrorKind {
+  const UserNotFoundErrorKind();
+}
 
-class TokenExpiredErrorKind extends AuthErrorKind {}
+final class AuthNetworkErrorKind extends AuthErrorKind {
+  const AuthNetworkErrorKind({this.kind});
+  final NetworkErrorKind? kind;
+}
 
 class AuthException implements Exception {
-  final AuthErrorKind kind;
-  final String message;
+  const AuthException(this.message, this.kind, {this.cause});
 
-  AuthException(this.message, this.kind);
+  final String message;
+  final AuthErrorKind kind;
+  final Object? cause;
 
   @override
   String toString() => 'AuthException($kind): $message';
 }
 
 abstract class AuthRepository {
-  /// Authenticates the user and persists the token locally.
-  Future<AuthToken> logIn(String username, String password);
+  Future<User> signInWithBasic({
+    required String username,
+    required String password,
+    bool furtherUseApiKey = true,
+  });
 
-  /// Clears the locally stored token.
-  Future<void> logOut();
+  Future<User> signInWithApiKey({required String apiKey});
 
-  /// Returns the locally cached token, or `null` if none / expired.
-  Future<AuthToken?> getToken();
+  Future<void> signOut();
 
-  /// Checks with the server whether [login] corresponds to an existing user.
-  Future<bool> isUserExists(String login);
-
-  /// Returns the latest logged username from local storage.
   Future<String?> getLastLoggedUsername();
 }

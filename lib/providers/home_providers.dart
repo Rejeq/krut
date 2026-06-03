@@ -7,7 +7,13 @@ class HomeState {
   final int pendingTasks;
   final List<(DateTime, int)> workHoursPerDay;
 
-  HomeState({this.username, this.totalWorkHours = 0, this.completedTasks = 0, this.pendingTasks = 0, this.workHoursPerDay = const []});
+  HomeState({
+    this.username,
+    this.totalWorkHours = 0,
+    this.completedTasks = 0,
+    this.pendingTasks = 0,
+    this.workHoursPerDay = const [],
+  });
 
   HomeState copyWith({
     String? username,
@@ -28,24 +34,23 @@ class HomeState {
 
 class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier()
-      : super(
-          HomeState(
-            username: 'Эллина',
-            totalWorkHours: 128,
-            completedTasks: 42,
-            pendingTasks: 7,
-            workHoursPerDay: [
-              (DateTime(2026, 5, 26), 6),
-              (DateTime(2026, 5, 27), 4),
-              (DateTime(2026, 5, 28), 8),
-              (DateTime(2026, 5, 29), 5),
-              (DateTime(2026, 5, 30), 7),
-              (DateTime(2026, 5, 31), 3),
-              (DateTime(2026, 6, 1), 6),
-            ],
-          ),
-        );
-
+    : super(
+        HomeState(
+          username: 'Эллина',
+          totalWorkHours: 128,
+          completedTasks: 42,
+          pendingTasks: 7,
+          workHoursPerDay: [
+            (DateTime(2026, 5, 26), 6),
+            (DateTime(2026, 5, 27), 4),
+            (DateTime(2026, 5, 28), 8),
+            (DateTime(2026, 5, 29), 5),
+            (DateTime(2026, 5, 30), 7),
+            (DateTime(2026, 5, 31), 3),
+            (DateTime(2026, 6, 1), 6),
+          ],
+        ),
+      );
 
   void updateUsername(String value) {
     state = state.copyWith(username: value);
@@ -68,6 +73,8 @@ class HomeNotifier extends StateNotifier<HomeState> {
   }
 }
 
-final homeStateProvider = StateNotifierProvider<HomeNotifier, HomeState?>((ref) {
+final homeStateProvider = StateNotifierProvider<HomeNotifier, HomeState?>((
+  ref,
+) {
   return HomeNotifier();
 });
