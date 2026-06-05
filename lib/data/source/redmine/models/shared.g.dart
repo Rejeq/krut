@@ -133,12 +133,28 @@ Map<String, dynamic> _$RedmineTimeEntryToJson(RedmineTimeEntry instance) =>
       'updated_on': instance.updatedOn?.toIso8601String(),
     };
 
+RedmineIssueStatus _$RedmineIssueStatusFromJson(Map<String, dynamic> json) =>
+    RedmineIssueStatus(
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as String,
+      isClosed: json['is_closed'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$RedmineIssueStatusToJson(RedmineIssueStatus instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'is_closed': instance.isClosed,
+    };
+
 RedmineIssue _$RedmineIssueFromJson(Map<String, dynamic> json) => RedmineIssue(
   id: (json['id'] as num).toInt(),
   subject: json['subject'] as String,
   projectId: (json['project_id'] as num?)?.toInt(),
   trackerId: (json['tracker_id'] as num?)?.toInt(),
-  statusId: (json['status_id'] as num?)?.toInt(),
+  status: json['status'] == null
+      ? null
+      : RedmineIssueStatus.fromJson(json['status'] as Map<String, dynamic>),
   priorityId: (json['priority_id'] as num?)?.toInt(),
   authorId: (json['author_id'] as num?)?.toInt(),
   assignedToId: (json['assigned_to_id'] as num?)?.toInt(),
@@ -158,7 +174,7 @@ Map<String, dynamic> _$RedmineIssueToJson(RedmineIssue instance) =>
       'subject': instance.subject,
       'project_id': instance.projectId,
       'tracker_id': instance.trackerId,
-      'status_id': instance.statusId,
+      'status': instance.status,
       'priority_id': instance.priorityId,
       'author_id': instance.authorId,
       'assigned_to_id': instance.assignedToId,

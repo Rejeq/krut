@@ -3,6 +3,8 @@ import 'models/query.dart';
 import 'package:track_dev/core/models/paginated_result.dart';
 
 abstract class RedmineApiSource {
+  Future<bool> checkBeacon(String servername);
+
   Future<RedmineUser> fetchCurrentUser();
 
   Future<PaginatedResult<RedmineProject>> listProjects({int offset = 0, int limit = 25});

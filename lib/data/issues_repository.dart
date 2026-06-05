@@ -11,7 +11,7 @@ import 'package:track_dev/data/map/error.dart';
 class IssuesRepositoryImpl implements IssuesRepository {
   final RedmineApiSource _apiSource;
 
-  IssuesRepositoryImpl({required RedmineApiSource apiSource}) : _apiSource = apiSource;
+  IssuesRepositoryImpl({required this._apiSource});
 
   @override
   Future<PaginatedResult<Issue>> list(IssuesQuery query) async {

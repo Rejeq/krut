@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:track_dev/providers/projects_providers.dart';
+import 'package:track_dev/core/models/project.dart';
+import 'package:track_dev/providers/projects_provider.dart';
+import 'package:track_dev/utils/value_or_null.dart';
 
 class ProjectsScreen extends ConsumerWidget {
   const ProjectsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final projects = ref.watch(projectsProvider);
+    final projectsAsync = ref.watch(projectsProvider);
+    final projects = projectsAsync.valueOrNull ?? const [];
 
     return Scaffold(
       appBar: AppBar(
@@ -36,6 +39,8 @@ class ProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 3,
@@ -61,7 +66,7 @@ class ProjectCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          'Выполнено: ${project.completedTasks} | В ожидании: ${project.pendingTasks}',
+          'Выполнено: -1 | В ожидании: -1',
         ),
         children: [
           const Divider(),
@@ -69,19 +74,19 @@ class ProjectCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.check_circle_outline,
             title: 'Выполненные задачи',
-            value: '${project.completedTasks}',
+            value: '-1',
           ),
 
           _InfoRow(
             icon: Icons.pending_actions,
             title: 'Задачи в ожидании',
-            value: '${project.pendingTasks}',
+            value: '-1',
           ),
 
           _InfoRow(
             icon: Icons.access_time,
             title: 'Отработано часов',
-            value: '${project.totalHours}',
+            value: '-1',
           ),
 
           const SizedBox(height: 12),
@@ -90,7 +95,7 @@ class ProjectCard extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               project.description ?? 'Нет описания',
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium,
             ),
           ),
         ],

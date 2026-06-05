@@ -5,23 +5,24 @@ import '../models/shared.dart';
 import '../../local/local_storage_source.dart';
 
 class RedmineAuthSession {
-  const RedmineAuthSession({required this.credentials});
-
+  final String baseUrl;
   final RedmineAuthCredentials credentials;
+
+  const RedmineAuthSession({required this.baseUrl, required this.credentials});
 
   RedmineAuthMethod get method => credentials.method;
 
-  JsonMap toJson() => credentials.toJson();
+  JsonMap toJson() => {'baseUrl': baseUrl, ...credentials.toJson()};
 
   factory RedmineAuthSession.fromJson(JsonMap json) {
-    switch (json['method']) {
-      case 'basic':
-        return RedmineAuthSession(credentials: RedmineBasicAuthCredentials.fromJson(json));
-      case 'apiKey':
-        return RedmineAuthSession(credentials: RedmineApiKeyCredentials.fromJson(json));
-      default:
-        throw const FormatException('Unsupported auth session');
-    }
+    final baseUrl = json['baseUrl'].toString();
+    final credentials = switch (json['method'].toString()) {
+      'basic' => RedmineBasicAuthCredentials.fromJson(json),
+      'apiKey' => RedmineApiKeyCredentials.fromJson(json),
+      _ => throw const FormatException('Unsupported auth session'),
+    };
+
+    return RedmineAuthSession(baseUrl: baseUrl, credentials: credentials);
   }
 }
 
@@ -64,4 +65,3 @@ class RedmineSessionStore {
     await storage.clear(_key);
   }
 }
-

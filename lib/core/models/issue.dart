@@ -1,4 +1,5 @@
 import 'package:track_dev/core/models/issue_category.dart';
+import 'package:track_dev/core/models/issue_status.dart';
 
 class Issue {
   const Issue({
@@ -6,7 +7,7 @@ class Issue {
     required this.subject,
     this.projectId,
     this.trackerId,
-    this.statusId,
+    this.status,
     this.priorityId,
     this.authorId,
     this.assignedToId,
@@ -20,7 +21,7 @@ class Issue {
   final String subject;
   final int? projectId;
   final int? trackerId;
-  final int? statusId;
+  final IssueStatus? status;
   final int? priorityId;
   final int? authorId;
   final int? assignedToId;

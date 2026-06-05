@@ -68,10 +68,31 @@ class TimeEntriesQuery {
   final int? issueId;
   final DateTime? spentOnFrom;
   final DateTime? spentOnTo;
+
+  TimeEntriesQuery copyWith({
+    int? offset,
+    int? limit,
+    int? userId,
+    String? projectId,
+    int? issueId,
+    DateTime? spentOnFrom,
+    DateTime? spentOnTo,
+  }) {
+    return TimeEntriesQuery(
+      offset: offset ?? this.offset,
+      limit: limit ?? this.limit,
+      userId: userId ?? this.userId,
+      projectId: projectId ?? this.projectId,
+      issueId: issueId ?? this.issueId,
+      spentOnFrom: spentOnFrom ?? this.spentOnFrom,
+      spentOnTo: spentOnTo ?? this.spentOnTo,
+    );
+  }
 }
 
 abstract class TimeEntriesRepository {
   Future<PaginatedResult<TimeEntry>> list(TimeEntriesQuery query);
+  Future<List<TimeEntry>> listAll(TimeEntriesQuery query);
 
   Future<TimeEntry> create(CreateTimeEntryRequest request);
   Future<void> delete(int id);

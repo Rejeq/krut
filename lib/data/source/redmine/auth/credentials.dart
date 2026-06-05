@@ -17,6 +17,7 @@ class RedmineBasicAuthCredentials extends RedmineAuthCredentials {
   @override
   RedmineAuthMethod get method => RedmineAuthMethod.basic;
 
+  // TODO: Encrypt the password
   @override
   JsonMap toJson() => {'method': method.name, 'username': username, 'password': password};
 
@@ -34,6 +35,7 @@ class RedmineApiKeyCredentials extends RedmineAuthCredentials {
   @override
   RedmineAuthMethod get method => RedmineAuthMethod.apiKey;
 
+  // TODO: Encrypt the api key
   @override
   JsonMap toJson() => {'method': method.name, 'apiKey': apiKey};
 

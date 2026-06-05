@@ -12,7 +12,7 @@ import 'package:track_dev/data/map/error.dart';
 class ProjectsRepositoryImpl implements ProjectsRepository {
   final RedmineApiSource _apiSource;
 
-  ProjectsRepositoryImpl({required RedmineApiSource apiSource}) : _apiSource = apiSource;
+  ProjectsRepositoryImpl({required this._apiSource});
 
   @override
   Future<PaginatedResult<Project>> list({int offset = 0, int limit = 25}) async {

@@ -127,13 +127,29 @@ class RedmineTimeEntry {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
+class RedmineIssueStatus {
+  const RedmineIssueStatus({
+    required this.id,
+    required this.name,
+    this.isClosed = false,
+  });
+
+  final int id;
+  final String name;
+  final bool isClosed;
+
+  factory RedmineIssueStatus.fromJson(JsonMap json) => _$RedmineIssueStatusFromJson(json);
+  JsonMap toJson() => _$RedmineIssueStatusToJson(this);
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class RedmineIssue {
   const RedmineIssue({
     required this.id,
     required this.subject,
     this.projectId,
     this.trackerId,
-    this.statusId,
+    this.status,
     this.priorityId,
     this.authorId,
     this.assignedToId,
@@ -147,7 +163,7 @@ class RedmineIssue {
   final String subject;
   final int? projectId;
   final int? trackerId;
-  final int? statusId;
+  final RedmineIssueStatus? status;
   final int? priorityId;
   final int? authorId;
   final int? assignedToId;

@@ -1,15 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:track_dev/main.dart';
-import 'package:track_dev/providers/auth_providers.dart';
-import 'package:track_dev/data/source/fake_local_datasource.dart';
+import 'package:track_dev/providers/sources_provider.dart';
+import 'package:track_dev/data/source/local/local_storage_source.dart';
+
+class FakeLocalStorageSource implements LocalStorageSource {
+  final Map<String, String> _store = {};
+
+  @override
+  Future<String?> read(String key) async => _store[key];
+
+  @override
+  Future<void> write(String key, String value) async {
+    _store[key] = value;
+  }
+
+  @override
+  Future<void> clear(String key) async {
+    _store.remove(key);
+  }
+}
 
 void main() {
   testWidgets('App starts on LoginScreen when no token is cached', (WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          localDataSourceProvider.overrideWithValue(FakeLocalDataSource()),
+          localStorageSourceProvider.overrideWithValue(FakeLocalStorageSource()),
         ],
         child: const MyApp(),
       ),
@@ -24,5 +41,3 @@ void main() {
     expect(find.text('Пароль'), findsOneWidget);
   });
 }
-
-

@@ -16,13 +16,13 @@ class FakeRedmineApiSource implements RedmineApiSource {
           RedmineProject(id: 1, name: 'Redmine', identifier: 'redmine'),
           RedmineProject(id: 2, name: 'Website', identifier: 'website'),
         ],
-        _timeEntries = timeEntries ?? const [
-          RedmineTimeEntry(id: 501, hours: 2.5, projectId: 1, issueId: 101, activityId: 9),
-          RedmineTimeEntry(id: 502, hours: 1.0, projectId: 2, issueId: 102, activityId: 9),
+        _timeEntries = timeEntries ?? [
+          RedmineTimeEntry(id: 501, hours: 2.5, spentOn: DateTime.now().subtract(Duration(days: 3)), projectId: 1, issueId: 101, activityId: 9),
+          RedmineTimeEntry(id: 502, hours: 1.0, spentOn: DateTime.now().subtract(Duration(days: 4)), projectId: 2, issueId: 102, activityId: 9),
         ],
         _issues = issues ?? const [
-          RedmineIssue(id: 101, subject: 'Fix login page', projectId: 1, statusId: 1, priorityId: 4),
-          RedmineIssue(id: 102, subject: 'Update docs', projectId: 2, statusId: 1, priorityId: 3),
+          RedmineIssue(id: 101, subject: 'Fix login page', projectId: 1, status: RedmineIssueStatus(id: 1, name: 'New', isClosed: false), priorityId: 4),
+          RedmineIssue(id: 102, subject: 'Update docs', projectId: 2, status: RedmineIssueStatus(id: 1, name: 'New', isClosed: false), priorityId: 3),
         ],
         _activities = activities ?? const [
           RedmineTimeEntryActivity(id: 8, name: 'Design'),
@@ -40,6 +40,9 @@ class FakeRedmineApiSource implements RedmineApiSource {
   final List<RedmineTimeEntryActivity> _activities;
   final Map<int, List<RedmineIssueCategory>> _issueCategoriesByProjectId;
   int _nextTimeEntryId = 600;
+
+  @override
+  Future<bool> checkBeacon(String servername) async => true;
 
   @override
   Future<RedmineUser> fetchCurrentUser() async => _currentUser;
@@ -124,7 +127,7 @@ class FakeRedmineApiSource implements RedmineApiSource {
     Iterable<RedmineIssue> out = _issues;
     if (projectId != null) out = out.where((e) => e.projectId == projectId);
     if (trackerId != null) out = out.where((e) => e.trackerId == trackerId);
-    if (statusId != null) out = out.where((e) => e.statusId?.toString() == statusId);
+    if (statusId != null) out = out.where((e) => e.status?.id.toString() == statusId);
     if (assignedToId != null) out = out.where((e) => e.assignedToId?.toString() == assignedToId);
     if (parentId != null) out = out.where((e) => e.id == parentId);
     if (issueId != null) {

@@ -1,5 +1,5 @@
+import 'package:track_dev/core/models/auth_session.dart';
 import 'package:track_dev/core/models/error.dart';
-import 'package:track_dev/core/models/user.dart';
 
 sealed class AuthErrorKind {
   const AuthErrorKind();
@@ -30,15 +30,21 @@ class AuthException implements Exception {
 }
 
 abstract class AuthRepository {
-  Future<User> signInWithBasic({
-    required String username,
-    required String password,
+  Future<bool> isServerValid(String servername);
+
+  Future<AuthSession?> currentSession();
+
+  Future<AuthSession> signInWithBasic(
+    String servername,
+    String username,
+    String password, {
     bool furtherUseApiKey = true,
   });
 
-  Future<User> signInWithApiKey({required String apiKey});
+  Future<AuthSession> signInWithApiKey(String servername, String apiKey);
 
   Future<void> signOut();
 
   Future<String?> getLastLoggedUsername();
+  Future<String?> getLastLoggedServername();
 }

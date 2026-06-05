@@ -8,7 +8,7 @@ import 'package:track_dev/data/map/error.dart';
 class UserRepositoryImpl implements UserRepository {
   final RedmineApiSource _apiSource;
 
-  UserRepositoryImpl({required RedmineApiSource apiSource}) : _apiSource = apiSource;
+  UserRepositoryImpl({required this._apiSource});
 
   @override
   Future<User> fetchCurrentUser() async {

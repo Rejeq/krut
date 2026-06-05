@@ -1,12 +1,12 @@
-import 'package:track_dev/core/models/user.dart';
+import 'package:track_dev/core/models/auth_session.dart';
 import 'package:track_dev/core/repository/auth.dart';
+import 'package:track_dev/data/map/auth_session.dart';
 import 'package:track_dev/data/source/local/local_storage_source.dart';
 import 'package:track_dev/data/source/redmine/auth/auth_session.dart';
 import 'package:track_dev/data/source/redmine/auth/credentials.dart';
 import 'package:track_dev/data/source/redmine/redmine_api_source.dart';
 import 'package:track_dev/data/source/redmine/models/shared.dart';
 import 'package:track_dev/data/source/redmine/models/error.dart';
-import 'package:track_dev/data/map/user.dart';
 import 'package:track_dev/data/map/error.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -15,76 +15,117 @@ class AuthRepositoryImpl implements AuthRepository {
   final RedmineSessionStore _sessionStore;
 
   AuthRepositoryImpl({
-    required LocalStorageSource localStorage,
-    required RedmineApiSource apiSource,
-    required RedmineSessionStore sessionStore,
-  })  : _localStorage = localStorage,
-        _apiSource = apiSource,
-        _sessionStore = sessionStore;
+    required this._localStorage,
+    required this._apiSource,
+    required this._sessionStore,
+  });
 
-  Future<RedmineAuthSession?> currentSession() => _sessionStore.read();
+  // TODO: Servename formatter
+  // Uri? formatBaseUrl(String servername) {
+  //   final raw = servername.trim();
+  //   if (raw.isEmpty) return null;
+  //
+  //   final parsed = Uri.tryParse(raw);
+  //   if (parsed == null) return null;
+  //
+  //   final base = parsed.hasScheme
+  //       ? parsed
+  //       : Uri.tryParse('https://$raw');
+  //
+  //   if (base == null || !base.hasAuthority) return null;
+  //
+  //   final path = base.path.endsWith('/')
+  //       ? '${base.path}issues.json'
+  //       : '${base.path}/issues.json';
+  //
+  //   return base.replace(
+  //     path: path,
+  //     queryParameters: const <String, String>{},
+  //     fragment: '',
+  //   );
+  // }
 
-  Future<RedmineUser?> currentUser() async {
-    try {
-      return await _apiSource.fetchCurrentUser();
-    } catch (_) {
-      return null;
-    }
+  @override
+  Future<bool> isServerValid(String servername) {
+    // TODO: Validate that servername is correctly formated
+    return _apiSource.checkBeacon(servername);
   }
 
   @override
-  Future<User> signInWithBasic({
-    required String username,
-    required String password,
+  Future<AuthSession?> currentSession() async {
+    final session = await _sessionStore.read();
+    return session?.toDomain();
+  }
+
+  @override
+  Future<AuthSession> signInWithBasic(
+    String servername,
+    String username,
+    String password, {
     bool furtherUseApiKey = true,
   }) async {
     try {
-      await _sessionStore.write(
-        RedmineAuthSession(
-          credentials: RedmineBasicAuthCredentials(username: username, password: password),
+      // TODO: Validate that servername is correctly formated
+      final session = RedmineAuthSession(
+        baseUrl: servername,
+        credentials: RedmineBasicAuthCredentials(
+          username: username,
+          password: password,
         ),
       );
-      final redmineUser = await currentUser();
+
+      await _sessionStore.write(session);
+      final redmineUser = await _currentUser();
       if (redmineUser == null) {
         await signOut();
-        throw const RedmineApiException('Basic authentication failed', SessionExpiredErrorKind());
+        throw const RedmineApiException(
+          'Basic authentication failed',
+          SessionExpiredErrorKind(),
+        );
       }
 
       await _setLastLoggedUsername(username);
 
       if (furtherUseApiKey && redmineUser.apiKey != null) {
         try {
-          return await signInWithApiKey(apiKey: redmineUser.apiKey!);
+          return await signInWithApiKey(servername, redmineUser.apiKey!);
         } catch (_) {
           // Fallback to basic auth session if API key sign in fails
-          await _sessionStore.write(
-            RedmineAuthSession(
-              credentials: RedmineBasicAuthCredentials(username: username, password: password),
-            ),
-          );
+          await _sessionStore.write(session);
         }
       }
 
-      return redmineUser.toDomain();
+      await _setLastLoggedServername(servername);
+      return session.toDomain();
     } on RedmineApiException catch (e) {
       throw AuthException(e.message, mapAuthKind(e.kind), cause: e);
     }
   }
 
   @override
-  Future<User> signInWithApiKey({required String apiKey}) async {
+  Future<AuthSession> signInWithApiKey(
+    String servername,
+    String apiKey,
+  ) async {
     try {
-      await _sessionStore.write(
-        RedmineAuthSession(
-          credentials: RedmineApiKeyCredentials(apiKey: apiKey),
-        ),
+      // TODO: Validate that servername is correctly formated
+      final session = RedmineAuthSession(
+        baseUrl: servername,
+        credentials: RedmineApiKeyCredentials(apiKey: apiKey),
       );
-      final redmineUser = await currentUser();
+
+      await _sessionStore.write(session);
+      final redmineUser = await _currentUser();
       if (redmineUser == null) {
         await signOut();
-        throw const RedmineApiException('API key authentication failed', NotFoundErrorKind());
+        throw const RedmineApiException(
+          'API key authentication failed',
+          NotFoundErrorKind(),
+        );
       }
-      return redmineUser.toDomain();
+
+      await _setLastLoggedServername(servername);
+      return session.toDomain();
     } on RedmineApiException catch (e) {
       throw AuthException(e.message, mapAuthKind(e.kind), cause: e);
     }
@@ -101,6 +142,24 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> _setLastLoggedUsername(String username) async {
     await _localStorage.write(_lastUsernameKey, username);
   }
+
+  @override
+  Future<String?> getLastLoggedServername() async {
+    return _localStorage.read(_lastServernameKey);
+  }
+
+  Future<void> _setLastLoggedServername(String servername) async {
+    await _localStorage.write(_lastServernameKey, servername);
+  }
+
+  Future<RedmineUser?> _currentUser() async {
+    try {
+      return await _apiSource.fetchCurrentUser();
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 const _lastUsernameKey = LocalStorageKeys.keyLastUsername;
+const _lastServernameKey = LocalStorageKeys.keyLastServername;

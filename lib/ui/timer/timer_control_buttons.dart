@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:track_dev/ui/timer/screens/timer_end_screen.dart';
 
 class TimerControlButtons extends StatelessWidget {
   const TimerControlButtons({
@@ -8,12 +7,14 @@ class TimerControlButtons extends StatelessWidget {
     required this.onStart,
     required this.onPause,
     required this.onStop,
+    required this.onSubmit,
   });
 
   final bool isRunning;
   final VoidCallback onStart;
   final VoidCallback onPause;
   final VoidCallback onStop;
+  final VoidCallback onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -46,15 +47,7 @@ class TimerControlButtons extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: FilledButton(
-            onPressed: () {
-              onStop();
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => const TimerEndScreen(),
-                ),
-              );
-            },
+            onPressed: onSubmit,
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: Colors.red,
