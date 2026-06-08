@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:track_dev/core/models/project.dart';
+import 'package:track_dev/core/usecase/project_stats.dart';
 import 'package:track_dev/providers/projects_provider.dart';
 import 'package:track_dev/utils/value_or_null.dart';
 
@@ -9,32 +10,29 @@ class ProjectsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final projectsAsync = ref.watch(projectsProvider);
-    final projects = projectsAsync.valueOrNull ?? const [];
+    final projectsStatsAsync = ref.watch(projectsStatsProvider);
+    final projectsStats = projectsStatsAsync.valueOrNull ?? const [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Проекты'),
-        centerTitle: true,
-      ),
-      body: ListView.builder(
+      body: SafeArea(
+        child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: projects.length,
+        itemCount: projectsStats.length,
         itemBuilder: (context, index) {
-          final project = projects[index];
-          return ProjectCard(project: project);
+          final project = projectsStats[index];
+          return ProjectCard(stats: project);
         },
       ),
-    );
+    ),);
   }
 }
 
 class ProjectCard extends StatelessWidget {
-  final Project project;
+  final ProjectStats stats;
 
   const ProjectCard({
     super.key,
-    required this.project,
+    required this.stats,
   });
 
   @override
@@ -59,14 +57,14 @@ class ProjectCard extends StatelessWidget {
           16,
         ),
         title: Text(
-          project.name,
+          stats.project.name,
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: Text(
-          'Выполнено: -1 | В ожидании: -1',
+          'Выполнено: ${stats.completed} | В ожидании: ${stats.pending}',
         ),
         children: [
           const Divider(),
@@ -74,19 +72,19 @@ class ProjectCard extends StatelessWidget {
           _InfoRow(
             icon: Icons.check_circle_outline,
             title: 'Выполненные задачи',
-            value: '-1',
+            value: '${stats.completed}',
           ),
 
           _InfoRow(
             icon: Icons.pending_actions,
             title: 'Задачи в ожидании',
-            value: '-1',
+            value: '${stats.pending}',
           ),
 
           _InfoRow(
             icon: Icons.access_time,
             title: 'Отработано часов',
-            value: '-1',
+            value: '${stats.totalWorkHours}',
           ),
 
           const SizedBox(height: 12),
@@ -94,7 +92,7 @@ class ProjectCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              project.description ?? 'Нет описания',
+              stats.project.description ?? 'Нет описания',
               style: theme.textTheme.bodyMedium,
             ),
           ),

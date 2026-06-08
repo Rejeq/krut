@@ -67,13 +67,15 @@ class StatsStateNotifier extends AsyncNotifier<StatsState> {
     final issuesRepo = ref.read(issuesRepositoryProvider);
     final entriesRepo = ref.read(timeEntriesRepositoryProvider);
 
+    final user = await userRepo.fetchCurrentUser();
+
     final query = TimeEntriesQuery(
       projectId: projectFilter?.id.toString(),
       spentOnFrom: start,
       spentOnTo: end,
+      userId: int.parse(user.id),
     );
 
-    final user = await userRepo.fetchCurrentUser();
     final entries = await entriesRepo.listAll(query);
 
     final calculatedStats = await calculateStats(user, entries, issuesRepo);

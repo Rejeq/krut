@@ -49,7 +49,7 @@ Future<Stats> calculateStats(
       .toSet()
       .difference(assignedIds);
 
-  List<Issue> allIssues = List.empty();
+  List<Issue> allIssues = [];
   if (entryIssueIds.isNotEmpty) {
     final extraIssues = await issuesRepo.listAll(
       IssuesQuery(issueId: entryIssueIds.join(',')),

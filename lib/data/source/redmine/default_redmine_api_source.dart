@@ -153,7 +153,7 @@ class DefaultRedmineApiSource implements RedmineApiSource {
         options: Options(
           method: 'GET',
           responseType: ResponseType.plain,
-          followRedirects: false,
+          followRedirects: true,
           validateStatus: (_) => true,
         ),
       );
