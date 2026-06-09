@@ -5,9 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:track_dev/core/repository/time_entries.dart';
 import 'package:track_dev/data/source/local/local_storage_source.dart';
 import 'package:track_dev/data/source/local/default_local_storage_source.dart';
-import 'package:track_dev/data/source/redmine/default_redmine_api_source.dart';
+// import 'package:track_dev/data/source/redmine/default_redmine_api_source.dart';
 import 'package:track_dev/data/source/redmine/fake_redmine_api_source.dart';
-
 import 'package:track_dev/data/source/redmine/redmine_api_source.dart';
 import 'package:track_dev/data/source/redmine/auth/auth_session.dart';
 import 'package:track_dev/core/repository/preferences.dart';
@@ -37,10 +36,11 @@ final redmineSessionStore = Provider<RedmineSessionStore>(
 );
 
 final redmineApiSourceProvider = Provider<RedmineApiSource>((ref) {
-  return DefaultRedmineApiSource(
-    dio: Dio(),
-    sessionStore: ref.watch(redmineSessionStore),
-  );
+  return FakeRedmineApiSource();
+  // return DefaultRedmineApiSource(
+  //   dio: Dio(),
+  //   sessionStore: ref.watch(redmineSessionStore),
+  // );
 });
 
 final preferencesRepositoryProvider = Provider<PreferencesRepository>((ref) {
